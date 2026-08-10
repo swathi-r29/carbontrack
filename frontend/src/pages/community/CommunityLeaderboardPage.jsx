@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { Trophy } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Trophy, Users, ArrowRight } from 'lucide-react';
 import { getCommunityLeaderboard, searchLeaderboard } from '@/api/leaderboardApi';
 import { useAuth } from '@/context/AuthContext';
 import LeaderboardHeroStats from '@/components/leaderboard/LeaderboardHeroStats.jsx';
@@ -9,12 +9,8 @@ import LeaderboardToolbar from '@/components/leaderboard/LeaderboardToolbar.jsx'
 import LeaderboardTopThree from '@/components/leaderboard/LeaderboardTopThree.jsx';
 import LeaderboardPositionCard from '@/components/leaderboard/LeaderboardPositionCard.jsx';
 import LeaderboardTable from '@/components/leaderboard/LeaderboardTable.jsx';
-import CommunityInsights from '@/components/leaderboard/CommunityInsights.jsx';
-import WeeklyChallengeWidget from '@/components/leaderboard/WeeklyChallengeWidget.jsx';
-import RecentAchievementsFeed from '@/components/leaderboard/RecentAchievementsFeed.jsx';
 import Spinner from '@/components/ui/Spinner';
 import Alert from '@/components/ui/Alert';
-import Modal from '@/components/ui/Modal';
 import BadgeSidebar from '@/components/badges/BadgeSidebar';
 
 export default function CommunityLeaderboardPage() {
@@ -36,7 +32,6 @@ export default function CommunityLeaderboardPage() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarUser, setSidebarUser] = useState(null);
-  const [showDetails, setShowDetails] = useState(false);
 
   const loadLeaderboardData = async () => {
     try {
@@ -170,22 +165,35 @@ export default function CommunityLeaderboardPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       
-      {/* Header Title */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-              <Trophy className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-slate-50 tracking-tight">
-                {t('community.title')}
-              </h1>
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                {t('community.subtitle')}
-              </p>
-            </div>
+      {/* Header Title & View Switcher */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            <Trophy className="w-6 h-6" />
           </div>
+          <div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-slate-50 tracking-tight">
+              {t('community.title')}
+            </h1>
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              {t('community.subtitle')}
+            </p>
+          </div>
+        </div>
+
+        {/* View Switcher Tabs */}
+        <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800/70 p-1 rounded-2xl border border-slate-200 dark:border-slate-700/60 self-start md:self-auto">
+          <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm border border-slate-200/50 dark:border-slate-800">
+            <Trophy className="w-4 h-4 text-amber-500" />
+            Leaderboard
+          </div>
+          <Link
+            to="/community/details"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:white transition-colors"
+          >
+            <Users className="w-4 h-4" />
+            Community Details
+          </Link>
         </div>
       </div>
 
@@ -248,13 +256,13 @@ export default function CommunityLeaderboardPage() {
               {searchQuery.trim() ? `🔍 ${t('community.searchResults')} (${filteredUsers.length})` : `📊 ${t('community.rankings')}`}
             </h2>
             <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setShowDetails(true)}
-                className="text-xs font-bold px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-950 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-200 transition-colors shadow-sm"
+              <Link
+                to="/community/details"
+                className="text-xs font-bold px-3 py-1.5 rounded-xl border border-emerald-300/80 dark:border-emerald-700/60 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 transition-colors shadow-sm flex items-center gap-1.5"
               >
-                ℹ️ Show Community Details
-              </button>
+                <Users className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                View Community Details <ArrowRight className="w-3 h-3" />
+              </Link>
               <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
                 {t('community.showing')} {filteredUsers.length} {t('community.of')} {rawUsers.length} {t('community.members')}
               </span>
@@ -275,24 +283,6 @@ export default function CommunityLeaderboardPage() {
         onClose={() => setSidebarOpen(false)}
         user={sidebarUser}
       />
-
-      {/* Community Details Modal */}
-      <Modal
-        isOpen={showDetails}
-        onClose={() => setShowDetails(false)}
-        title="Community Details & Stats"
-        size="4xl"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start max-h-[70vh] overflow-y-auto pr-1">
-          <div className="space-y-4">
-            <WeeklyChallengeWidget />
-            <CommunityInsights totalCO2Saved={totalCO2Saved} />
-          </div>
-          <div>
-            <RecentAchievementsFeed achievements={recentAchievements} />
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 }

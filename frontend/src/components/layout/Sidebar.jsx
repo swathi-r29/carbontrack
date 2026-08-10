@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard, Zap, Target, BarChart2,
-  Settings, Leaf, ShieldCheck, TrendingDown, Lightbulb, Trophy, Building2, Flag, Users, Navigation, HeartHandshake, Home,
+  Settings, Leaf, ShieldCheck, TrendingDown, Lightbulb, Trophy, Building2, Flag, Users, Navigation, HeartHandshake, Home, Award,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -19,8 +19,8 @@ export default function Sidebar({ isOpen, onClose }) {
     { to: '/goals', label: t('nav.goals', { defaultValue: 'Goals' }), icon: Target },
     { to: '/challenges', label: t('nav.challenges', { defaultValue: 'Challenges' }), icon: Flag },
     { to: '/reports', label: t('nav.reports', { defaultValue: 'Reports' }), icon: BarChart2 },
-    { to: '/badges', label: t('nav.myBadges', { defaultValue: 'My Badges' }), icon: Trophy },
-    { to: '/community', label: t('nav.community', { defaultValue: 'Community' }), icon: Trophy },
+    { to: '/badges', label: t('nav.myBadges', { defaultValue: 'My Badges' }), icon: Award },
+    { to: '/community', label: t('nav.community', { defaultValue: 'Community' }), icon: Users },
     { to: '/recommendations', label: t('nav.recommendations', { defaultValue: 'Recommendations' }), icon: Lightbulb },
     { to: '/settings', label: t('nav.settings', { defaultValue: 'Settings' }), icon: Settings },
   ];

@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LayoutDashboard, Zap, Target, Trophy, Settings } from 'lucide-react';
+import { LayoutDashboard, Zap, Target, Users, Settings } from 'lucide-react';
 
 /**
  * BottomNav — mobile-only tab bar (hidden on md+)
@@ -12,7 +12,7 @@ export default function BottomNav() {
     { to: '/dashboard', label: t('nav.home'), icon: LayoutDashboard },
     { to: '/activities', label: t('nav.log'), icon: Zap },
     { to: '/goals', label: t('nav.goals'), icon: Target },
-    { to: '/community', label: t('nav.community'), icon: Trophy },
+    { to: '/community', label: t('nav.community'), icon: Users },
     { to: '/settings', label: t('nav.settings'), icon: Settings },
   ];
 

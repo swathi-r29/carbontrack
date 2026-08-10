@@ -39,6 +39,7 @@ const BadgesPage = lazy(() => import('@/pages/badges/BadgesPage'));
 const ReportsPage = lazy(() => import('@/pages/reports/ReportsPage'));
 const RecommendationsPage = lazy(() => import('@/pages/recommendations/RecommendationsPage'));
 const CommunityLeaderboardPage = lazy(() => import('@/pages/community/CommunityLeaderboardPage'));
+const CommunityDetailsPage = lazy(() => import('@/pages/community/CommunityDetailsPage'));
 const OrganisationLayout = lazy(() => import('@/components/organisation/OrganisationLayout'));
 const OrganisationPortalPage = lazy(() => import('@/pages/organisation/OrganisationPortalPage'));
 const SettingsPage = lazy(() => import('@/pages/settings/SettingsPage'));
@@ -93,6 +94,8 @@ export default function AppRouter() {
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/recommendations" element={<RecommendationsPage />} />
           <Route path="/community" element={<CommunityLeaderboardPage />} />
+          <Route path="/community/details" element={<CommunityDetailsPage />} />
+          <Route path="/community-details" element={<Navigate to="/community/details" replace />} />
           <Route path="/route-planner" element={<RoutePlannerPage />} />
           <Route path="/offsets" element={<OffsetHubPage />} />
           <Route path="/energy-simulator" element={<EnergySimulatorPage />} />

@@ -1,5 +1,6 @@
 package com.carbontrack.backend.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,4 +12,14 @@ public class DailyTrendDto {
     private String day;
     private double co2Saved;
     private long activities;
+
+    @JsonProperty("co2")
+    public double getCo2() {
+        return co2Saved;
+    }
+
+    @JsonProperty("activityCount")
+    public long getActivityCount() {
+        return activities;
+    }
 }

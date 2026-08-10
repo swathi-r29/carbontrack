@@ -230,10 +230,15 @@ public class LeaderboardController {
             String dayName = date.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
 
             List<ActivityLog> dayLogs = allLogs.stream()
-                    .filter(log -> log.getLogDate() != null && log.getLogDate().equals(date))
+                    .filter(log -> {
+                        LocalDate d = log.getLogDate() != null ? log.getLogDate() : (log.getCreatedAt() != null ? log.getCreatedAt().toLocalDate() : null);
+                        return d != null && d.equals(date);
+                    })
                     .collect(Collectors.toList());
 
-            double dayCO2 = dayLogs.stream().mapToDouble(ActivityLog::getCalculatedEmissions).sum();
+            double dayCO2 = dayLogs.stream()
+                    .mapToDouble(l -> l.getCalculatedEmissions() != null ? l.getCalculatedEmissions() : 0.0)
+                    .sum();
             long dayCount = dayLogs.size();
 
             trends.add(new DailyTrendDto(dayName, dayCO2, dayCount));

@@ -28,6 +28,7 @@ export default function DashboardLayout() {
     '/admin': t('nav.adminDashboard', { defaultValue: 'Admin' }),
     '/badges': t('nav.myBadges', { defaultValue: 'Trophy Room' }),
     '/community': t('nav.community', { defaultValue: 'Community' }),
+    '/community/details': 'Community Details & Impact',
     '/recommendations': t('nav.recommendations', { defaultValue: 'Recommendations' }),
   };
   const title = PAGE_TITLES[pathname] ?? '';

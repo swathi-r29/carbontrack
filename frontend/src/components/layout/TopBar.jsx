@@ -28,6 +28,7 @@ export default function TopBar({ onMenuClick, title, hasScrolled }) {
     { label: t('nav.reports'), to: '/reports' },
     { label: t('nav.recommendations'), to: '/recommendations' },
     { label: t('nav.community'), to: '/community' },
+    { label: 'Community Details & Impact', to: '/community/details' },
     { label: t('nav.settings'), to: '/settings' },
   ];
 
