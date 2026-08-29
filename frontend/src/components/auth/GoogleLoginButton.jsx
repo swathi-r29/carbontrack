@@ -55,9 +55,10 @@ export default function GoogleLoginButton() {
 
             if (!result.ok) {
               const problem = await result.json().catch(() => null);
-              const detail = problem?.message || problem?.error || `Backend returned HTTP ${result.status}`;
+              const detail = problem?.message || problem?.username || problem?.error || `Backend returned HTTP ${result.status}`;
               throw new Error(detail);
             }
+
 
 
             const data = await result.json();

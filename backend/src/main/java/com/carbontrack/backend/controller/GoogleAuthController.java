@@ -52,7 +52,7 @@ public class GoogleAuthController {
         try {
             if (request.getToken() == null || request.getToken().isEmpty()) {
                 return ResponseEntity.badRequest().body(
-                    new AuthResponse(null, null, "Token is required", "ERROR")
+                    new AuthResponse(null, null, null, null, "Token is required", "ERROR")
                 );
             }
             
@@ -63,6 +63,12 @@ public class GoogleAuthController {
             
             String email = (String) claims.get("email");
             String name = (String) claims.get("name");
+            if (name == null || name.isBlank()) {
+                name = (String) claims.get("given_name");
+                if (name == null || name.isBlank()) {
+                    name = email != null ? email.substring(0, email.indexOf('@')) : "Google User";
+                }
+            }
             Object emailVerified = claims.get("email_verified");
             String picture = (String) claims.get("picture");
             
@@ -70,9 +76,9 @@ public class GoogleAuthController {
             boolean isEmailVerified = Boolean.TRUE.equals(emailVerified) || 
                                      "true".equalsIgnoreCase(String.valueOf(emailVerified));
             
-            if (email == null || name == null) {
+            if (email == null) {
                 return ResponseEntity.badRequest().body(
-                    new AuthResponse(null, null, "Google token missing required information", "ERROR")
+                    new AuthResponse(null, null, null, null, "Google token missing required email claim", "ERROR")
                 );
             }
             
@@ -104,10 +110,11 @@ public class GoogleAuthController {
         } catch (Exception e) {
             logger.error("Google token verification failed: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().body(
-                new AuthResponse(null, null, "Authentication failed: " + e.getMessage(), "ERROR")
+                new AuthResponse(null, null, null, null, "Authentication failed: " + e.getMessage(), "ERROR")
             );
         }
     }
+
 
     private User createIndividualGoogleUser(String email, String name, String picture) {
         String localPart = email.substring(0, email.indexOf('@'))
