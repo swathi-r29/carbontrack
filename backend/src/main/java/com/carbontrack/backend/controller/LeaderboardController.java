@@ -24,9 +24,14 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestController
 @RequestMapping("/api/leaderboard")
 public class LeaderboardController {
+
+    private static final Logger log = LoggerFactory.getLogger(LeaderboardController.class);
 
     private final UserRepository userRepository;
     private final ActivityLogRepository activityLogRepository;
@@ -54,14 +59,41 @@ public class LeaderboardController {
 
     @GetMapping
     public ResponseEntity<LeaderboardResponse> getLeaderboard() {
-        return ResponseEntity.ok(buildLeaderboardResponse(null, 50));
+        try {
+            return ResponseEntity.ok(buildLeaderboardResponse(null, 50));
+        } catch (Exception e) {
+            log.error("Failed to load leaderboard: {}", e.getMessage(), e);
+            return ResponseEntity.ok(new LeaderboardResponse(
+                    Collections.emptyList(),
+                    Collections.emptyList(),
+                    null,
+                    System.currentTimeMillis() / 1000L,
+                    0, 0.0, 0, 0,
+                    Collections.emptyList(),
+                    Collections.emptyList()
+            ));
+        }
     }
 
     @GetMapping("/search")
     public ResponseEntity<LeaderboardResponse> searchLeaderboard(@RequestParam("q") String query,
                                                                  @RequestParam(value = "limit", defaultValue = "50") int limit) {
-        return ResponseEntity.ok(buildLeaderboardResponse(query, limit));
+        try {
+            return ResponseEntity.ok(buildLeaderboardResponse(query, limit));
+        } catch (Exception e) {
+            log.error("Failed to search leaderboard: {}", e.getMessage(), e);
+            return ResponseEntity.ok(new LeaderboardResponse(
+                    Collections.emptyList(),
+                    Collections.emptyList(),
+                    null,
+                    System.currentTimeMillis() / 1000L,
+                    0, 0.0, 0, 0,
+                    Collections.emptyList(),
+                    Collections.emptyList()
+            ));
+        }
     }
+
 
     private LeaderboardResponse buildLeaderboardResponse(String searchQuery, int limit) {
         User currentUser = securityService.getCurrentUser();
@@ -334,37 +366,13 @@ public class LeaderboardController {
             return a.getUsername().compareToIgnoreCase(b.getUsername());
         });
 
-        final List<String> LEADERBOARD_BADGES = List.of(
-            "Earth Savior", "Community Leader", "Top Saver", "Eco Warrior"
-        );
-
-        for (LeaderboardUserResponse ur : responseList) {
-            for (String badgeName : LEADERBOARD_BADGES) {
-                revokeLeaderboardBadge(ur.getUserId(), badgeName);
-            }
-        }
-
         for (int i = 0; i < responseList.size(); i++) {
             LeaderboardUserResponse ur = responseList.get(i);
-            int rank = i + 1;
-            ur.setRank(rank);
-
-            if (ur.getActivityCount() > 0) {
-                if (rank == 1) {
-                    awardBadgeIfMissing(ur.getUserId(), "Earth Savior", "Awarded to the #1 user on the global leaderboard.");
-                    long achievedGoalCount = goalRepository.findByUserIdAndStatus(ur.getUserId(), "ACHIEVED").size();
-                    if (achievedGoalCount >= 3) {
-                        awardBadgeIfMissing(ur.getUserId(), "Community Leader", "Ranked #1 on the leaderboard with 3 or more goals achieved.");
-                    }
-                } else if (rank == 2) {
-                    awardBadgeIfMissing(ur.getUserId(), "Top Saver", "Awarded to the #2 user on the global leaderboard.");
-                } else if (rank == 3) {
-                    awardBadgeIfMissing(ur.getUserId(), "Eco Warrior", "Awarded to the #3 user on the global leaderboard.");
-                }
-            }
+            ur.setRank(i + 1);
         }
 
         return responseList;
+
     }
 
     private CategoryStrength determineCategoryStrength(List<ActivityLog> logs) {

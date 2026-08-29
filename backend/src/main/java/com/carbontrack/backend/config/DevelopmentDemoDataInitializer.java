@@ -17,9 +17,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Component
-@Profile("dev")
+@Profile("!test")
 @Order(20)
 public class DevelopmentDemoDataInitializer implements ApplicationRunner {
+
     private final OrganisationRepository organisationRepository;
     private final UserRepository userRepository;
     private final ActivityLogRepository activityLogRepository;
