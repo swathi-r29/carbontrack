@@ -63,13 +63,14 @@ public class ChallengeService {
             r.setProgressValue(0.0);
             r.setProgressPct(0.0);
         } else {
-            r.setStatus(uc.getStatus());
-            r.setProgressValue(uc.getProgressValue());
+            r.setStatus(uc.getStatus() != null ? uc.getStatus() : "IN_PROGRESS");
+            double progVal = uc.getProgressValue() != null ? uc.getProgressValue() : 0.0;
+            r.setProgressValue(progVal);
             r.setJoinedAt(uc.getJoinedAt() != null ? uc.getJoinedAt().toString() : null);
             r.setCompletedAt(uc.getCompletedAt() != null ? uc.getCompletedAt().toString() : null);
 
             // Compute progress percentage
-            double pct = computeProgressPct(c, uc.getProgressValue());
+            double pct = computeProgressPct(c, progVal);
             r.setProgressPct(pct);
         }
         return r;
@@ -82,7 +83,7 @@ public class ChallengeService {
      */
     private double computeProgressPct(Challenge c, double progressValue) {
         String metric = c.getMetricType();
-        double target = c.getTargetValue();
+        double target = c.getTargetValue() != null ? c.getTargetValue() : 0.0;
         if (target <= 0) return 100.0;
 
         if ("LOG_DAYS".equals(metric) || "LOG_ENTRIES".equals(metric)) {
@@ -117,7 +118,7 @@ public class ChallengeService {
                 userChallengeRepository.save(uc);
             } catch (Exception e) {
                 log.warn("Failed to evaluate challenge {} for user {}: {}",
-                        uc.getChallenge().getId(), userId, e.getMessage());
+                        uc.getChallenge() != null ? uc.getChallenge().getId() : null, userId, e.getMessage());
             }
         }
     }
@@ -148,7 +149,7 @@ public class ChallengeService {
 
         return all.stream().map(c -> {
             UserChallenge uc = joined.stream()
-                    .filter(u -> u.getChallenge().getId().equals(c.getId()))
+                    .filter(u -> u.getChallenge() != null && u.getChallenge().getId().equals(c.getId()))
                     .findFirst().orElse(null);
             return toResponse(c, uc);
         }).collect(Collectors.toList());
@@ -222,7 +223,7 @@ public class ChallengeService {
                 userChallengeRepository.save(uc);
             } catch (Exception e) {
                 log.warn("Failed to evaluate challenge {} for user {}: {}",
-                        uc.getChallenge().getId(), uc.getUserId(), e.getMessage());
+                        uc.getChallenge() != null ? uc.getChallenge().getId() : null, uc.getUserId(), e.getMessage());
             }
         }
     }
@@ -238,15 +239,15 @@ public class ChallengeService {
 
         List<com.carbontrack.backend.entity.ActivityLog> logs = activityLogRepository.findByUserIdOrderByIdDesc(userId);
 
-        return switch (c.getMetricType()) {
+        return switch (c.getMetricType() != null ? c.getMetricType() : "") {
             case "STAY_UNDER", "REDUCE_EMISSIONS" -> {
                 LocalDate weekMonday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-                if (isAll) {
-                    yield activityLogRepository.sumEmissionsByUserAndDateRange(userId, weekMonday, activeEnd);
-                } else {
-                    yield activityLogRepository.sumEmissionsByUserCategoryAndDateRange(userId, cat, weekMonday, activeEnd);
-                }
+                Double sum = isAll ?
+                        activityLogRepository.sumEmissionsByUserAndDateRange(userId, weekMonday, activeEnd) :
+                        activityLogRepository.sumEmissionsByUserCategoryAndDateRange(userId, cat, weekMonday, activeEnd);
+                yield sum != null ? sum : 0.0;
             }
+
             case "LOG_DAYS" -> {
                 // Count distinct active dates where the user logged this category
                 long distinctDays = logs.stream()
