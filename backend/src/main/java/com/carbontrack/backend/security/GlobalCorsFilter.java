@@ -24,14 +24,16 @@ public class GlobalCorsFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String origin = request.getHeader("Origin");
-        if (origin != null && !origin.isBlank()) {
-            response.setHeader("Access-Control-Allow-Origin", origin);
-            response.setHeader("Access-Control-Allow-Credentials", "true");
-            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-            response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Origin, Accept, X-Requested-With, Access-Control-Request-Method, Access-Control-Request-Headers");
-            response.setHeader("Access-Control-Exposed-Headers", "Authorization");
-            response.setHeader("Access-Control-Max-Age", "3600");
+        if (origin == null || origin.isBlank()) {
+            origin = request.getHeader("origin");
         }
+
+        response.setHeader("Access-Control-Allow-Origin", (origin != null && !origin.isBlank()) ? origin : "*");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+        response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Origin, Accept, X-Requested-With, Access-Control-Request-Method, Access-Control-Request-Headers");
+        response.setHeader("Access-Control-Exposed-Headers", "Authorization");
+        response.setHeader("Access-Control-Max-Age", "3600");
 
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             response.setStatus(HttpServletResponse.SC_OK);
@@ -40,4 +42,5 @@ public class GlobalCorsFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
 }
