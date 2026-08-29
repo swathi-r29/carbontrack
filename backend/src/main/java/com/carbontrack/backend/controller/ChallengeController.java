@@ -5,6 +5,10 @@ import com.carbontrack.backend.service.ChallengeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,6 +24,8 @@ import java.util.List;
 @RequestMapping("/api/challenges")
 public class ChallengeController {
 
+    private static final Logger log = LoggerFactory.getLogger(ChallengeController.class);
+
     private final ChallengeService challengeService;
 
     public ChallengeController(ChallengeService challengeService) {
@@ -28,12 +34,22 @@ public class ChallengeController {
 
     @GetMapping
     public ResponseEntity<List<ChallengeResponse>> getAllChallenges() {
-        return ResponseEntity.ok(challengeService.getAllChallengesForUser());
+        try {
+            return ResponseEntity.ok(challengeService.getAllChallengesForUser());
+        } catch (Exception e) {
+            log.error("Failed to fetch challenges for user: {}", e.getMessage(), e);
+            return ResponseEntity.ok(Collections.emptyList());
+        }
     }
 
     @GetMapping("/my")
     public ResponseEntity<List<ChallengeResponse>> getMyChallenges() {
-        return ResponseEntity.ok(challengeService.getMyJoinedChallenges());
+        try {
+            return ResponseEntity.ok(challengeService.getMyJoinedChallenges());
+        } catch (Exception e) {
+            log.error("Failed to fetch joined challenges for user: {}", e.getMessage(), e);
+            return ResponseEntity.ok(Collections.emptyList());
+        }
     }
 
     @PostMapping("/{id}/join")
@@ -41,3 +57,4 @@ public class ChallengeController {
         return ResponseEntity.ok(challengeService.joinChallenge(id));
     }
 }
+

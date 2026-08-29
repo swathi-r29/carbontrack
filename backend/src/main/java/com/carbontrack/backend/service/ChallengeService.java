@@ -137,7 +137,11 @@ public class ChallengeService {
     @Transactional
     public List<ChallengeResponse> getAllChallengesForUser() {
         Long userId = currentUserId();
-        evaluateUserChallenges(userId);
+        try {
+            evaluateUserChallenges(userId);
+        } catch (Exception e) {
+            log.warn("Non-fatal: challenge evaluation failed for user {}: {}", userId, e.getMessage());
+        }
 
         User currentUser = securityService.getCurrentUser();
         Long userOrgId = (currentUser != null && currentUser.getOrganisation() != null) ? currentUser.getOrganisation().getId() : null;
@@ -149,7 +153,7 @@ public class ChallengeService {
 
         return all.stream().map(c -> {
             UserChallenge uc = joined.stream()
-                    .filter(u -> u.getChallenge() != null && u.getChallenge().getId().equals(c.getId()))
+                    .filter(u -> u != null && u.getChallenge() != null && u.getChallenge().getId().equals(c.getId()))
                     .findFirst().orElse(null);
             return toResponse(c, uc);
         }).collect(Collectors.toList());
@@ -159,13 +163,18 @@ public class ChallengeService {
     @Transactional
     public List<ChallengeResponse> getMyJoinedChallenges() {
         Long userId = currentUserId();
-        evaluateUserChallenges(userId);
+        try {
+            evaluateUserChallenges(userId);
+        } catch (Exception e) {
+            log.warn("Non-fatal: challenge evaluation failed for user {}: {}", userId, e.getMessage());
+        }
 
         return userChallengeRepository.findByUserId(userId).stream()
                 .filter(uc -> uc != null && uc.getChallenge() != null)
                 .map(uc -> toResponse(uc.getChallenge(), uc))
                 .collect(Collectors.toList());
     }
+
 
     /** Join a challenge. Idempotent — joining twice is a no-op. */
     @Transactional
