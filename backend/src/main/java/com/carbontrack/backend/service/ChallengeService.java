@@ -89,18 +89,19 @@ public class ChallengeService {
         if ("LOG_DAYS".equals(metric) || "LOG_ENTRIES".equals(metric)) {
             return Math.min(100.0, (progressValue / target) * 100.0);
         }
-        // STAY_UNDER / REDUCE_EMISSIONS: lower emissions = higher score
-        // Show how much "room" is left: (target - used) / target * 100
         double remaining = target - progressValue;
         return Math.max(0.0, Math.min(100.0, (remaining / target) * 100.0));
     }
 
+
     /** Dynamically evaluate all joined challenges for a user against live database activity logs */
     @Transactional
     public void evaluateUserChallenges(Long userId) {
+
         List<UserChallenge> allJoined = userChallengeRepository.findByUserId(userId);
         for (UserChallenge uc : allJoined) {
             try {
+                if (uc == null || uc.getChallenge() == null) continue;
                 double progress = computeProgress(uc.getChallenge(), userId);
                 uc.setProgressValue(progress);
 
@@ -117,8 +118,7 @@ public class ChallengeService {
                 }
                 userChallengeRepository.save(uc);
             } catch (Exception e) {
-                log.warn("Failed to evaluate challenge {} for user {}: {}",
-                        uc.getChallenge() != null ? uc.getChallenge().getId() : null, userId, e.getMessage());
+                log.warn("Failed to evaluate challenge for user {}: {}", userId, e.getMessage());
             }
         }
     }
@@ -143,7 +143,7 @@ public class ChallengeService {
         Long userOrgId = (currentUser != null && currentUser.getOrganisation() != null) ? currentUser.getOrganisation().getId() : null;
 
         List<Challenge> all = challengeRepository.findAll().stream()
-                .filter(c -> c.getOrganisationId() == null || (userOrgId != null && userOrgId.equals(c.getOrganisationId())))
+                .filter(c -> c != null && (c.getOrganisationId() == null || (userOrgId != null && userOrgId.equals(c.getOrganisationId()))))
                 .toList();
         List<UserChallenge> joined = userChallengeRepository.findByUserId(userId);
 
@@ -162,6 +162,7 @@ public class ChallengeService {
         evaluateUserChallenges(userId);
 
         return userChallengeRepository.findByUserId(userId).stream()
+                .filter(uc -> uc != null && uc.getChallenge() != null)
                 .map(uc -> toResponse(uc.getChallenge(), uc))
                 .collect(Collectors.toList());
     }
@@ -205,7 +206,7 @@ public class ChallengeService {
     @Transactional
     public void evaluateAllActiveUserChallenges() {
         List<UserChallenge> active = userChallengeRepository.findAll().stream()
-                .filter(uc -> "IN_PROGRESS".equals(uc.getStatus()))
+                .filter(uc -> uc != null && "IN_PROGRESS".equals(uc.getStatus()) && uc.getChallenge() != null)
                 .collect(Collectors.toList());
 
         log.debug("Challenge evaluation: {} active user challenges", active.size());
@@ -222,8 +223,7 @@ public class ChallengeService {
                 }
                 userChallengeRepository.save(uc);
             } catch (Exception e) {
-                log.warn("Failed to evaluate challenge {} for user {}: {}",
-                        uc.getChallenge() != null ? uc.getChallenge().getId() : null, uc.getUserId(), e.getMessage());
+                log.warn("Failed to evaluate challenge for user {}: {}", uc.getUserId(), e.getMessage());
             }
         }
     }
@@ -231,6 +231,7 @@ public class ChallengeService {
     /* ── Progress computation ──────────────────────────────────── */
 
     private double computeProgress(Challenge c, Long userId) {
+        if (c == null) return 0.0;
         LocalDate activeStart = LocalDate.now().minusDays(30);
         LocalDate activeEnd   = LocalDate.now();
 
@@ -247,7 +248,6 @@ public class ChallengeService {
                         activityLogRepository.sumEmissionsByUserCategoryAndDateRange(userId, cat, weekMonday, activeEnd);
                 yield sum != null ? sum : 0.0;
             }
-
             case "LOG_DAYS" -> {
                 // Count distinct active dates where the user logged this category
                 long distinctDays = logs.stream()
@@ -270,18 +270,18 @@ public class ChallengeService {
     }
 
     private boolean isChallengeComplete(Challenge c, double progressValue) {
+        if (c == null || c.getMetricType() == null || c.getTargetValue() == null) return false;
+        double target = c.getTargetValue();
         return switch (c.getMetricType()) {
             case "STAY_UNDER", "REDUCE_EMISSIONS" -> {
-                // A stay-under challenge stays IN_PROGRESS during the active week.
-                // It only completes if the user has logged activity (progressValue > 0)
-                // AND stayed strictly below targetValue, AND it's near the end of the week (e.g. Sunday or >= 5 days elapsed).
                 LocalDate today = LocalDate.now();
                 boolean endOfWeek = today.getDayOfWeek() == DayOfWeek.SUNDAY || today.getDayOfWeek() == DayOfWeek.SATURDAY;
-                yield progressValue > 0 && progressValue <= c.getTargetValue() && endOfWeek;
+                yield progressValue > 0 && progressValue <= target && endOfWeek;
             }
             case "LOG_DAYS", "LOG_ENTRIES" ->
-                    progressValue >= c.getTargetValue();
+                    progressValue >= target;
             default -> false;
         };
     }
 }
+
