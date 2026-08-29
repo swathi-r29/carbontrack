@@ -62,13 +62,15 @@ public class GoogleAuthController {
             Map<String, Object> claims = googleOAuth2Service.verifyGoogleToken(request.getToken());
             
             String email = (String) claims.get("email");
-            String name = (String) claims.get("name");
-            if (name == null || name.isBlank()) {
-                name = (String) claims.get("given_name");
-                if (name == null || name.isBlank()) {
-                    name = email != null ? email.substring(0, email.indexOf('@')) : "Google User";
+            String rawName = (String) claims.get("name");
+            if (rawName == null || rawName.isBlank()) {
+                rawName = (String) claims.get("given_name");
+                if (rawName == null || rawName.isBlank()) {
+                    rawName = email != null ? email.substring(0, email.indexOf('@')) : "Google User";
                 }
             }
+            final String name = rawName;
+
             Object emailVerified = claims.get("email_verified");
             String picture = (String) claims.get("picture");
             
