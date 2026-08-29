@@ -44,8 +44,9 @@ export default function GoogleLoginButton() {
             // Send to backend
             // Keep API calls same-origin in development. Vite proxies /api to
             // the backend, which avoids localhost/127.0.0.1 CORS mismatches.
-            const apiBase = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+            const apiBase = (import.meta.env.VITE_API_BASE_URL || 'https://carbontrack-backend-d060.onrender.com').replace(/\/$/, '');
             const result = await fetch(`${apiBase}/api/auth/google/verify`, {
+
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ token: tokenResponse.access_token }),

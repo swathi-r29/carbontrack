@@ -74,10 +74,11 @@ export const env = {
   // ── API Configuration ─────────────────────────────────────────────
   api: {
     // Base URL without /api suffix (Axios instance adds it)
-    baseURL: getEnv('VITE_API_BASE_URL', 'http://localhost:8080'),
+    baseURL: getEnv('VITE_API_BASE_URL', 'https://carbontrack-backend-d060.onrender.com'),
     timeout: getNumberEnv('VITE_API_TIMEOUT', 15000),
     debugAPI: getBooleanEnv('VITE_DEBUG_API', false),
   },
+
 
   // ── Authentication ────────────────────────────────────────────────
   auth: {
