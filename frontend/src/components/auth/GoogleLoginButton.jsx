@@ -54,8 +54,10 @@ export default function GoogleLoginButton() {
 
             if (!result.ok) {
               const problem = await result.json().catch(() => null);
-              throw new Error(problem?.message || 'Google authentication failed on backend');
+              const detail = problem?.message || problem?.error || `Backend returned HTTP ${result.status}`;
+              throw new Error(detail);
             }
+
 
             const data = await result.json();
             // Google sign-in is persistent until the user explicitly logs out.
