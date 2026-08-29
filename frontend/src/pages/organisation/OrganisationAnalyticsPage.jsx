@@ -21,6 +21,7 @@ function EmptyIcon() {
     </svg>
   );
 }
+
 function Empty({ label }) {
   return (
     <div className="grid h-full min-h-40 place-items-center text-center text-xs text-slate-500">
@@ -33,6 +34,7 @@ function Empty({ label }) {
     </div>
   );
 }
+
 function Loading() {
   return (
     <div className="space-y-4" aria-label="Loading analytics">
@@ -50,6 +52,7 @@ function Loading() {
     </div>
   );
 }
+
 function ChartCard({ title, description, summary, children, reduceMotion }) {
   return (
     <section className={card}>
@@ -62,6 +65,7 @@ function ChartCard({ title, description, summary, children, reduceMotion }) {
     </section>
   );
 }
+
 function Tip({ active, payload, label }) {
   const { t, i18n } = useTranslation();
   if (!active || !payload?.length) return null;
@@ -81,6 +85,7 @@ function Tip({ active, payload, label }) {
     </div>
   );
 }
+
 const monthKey = (row) => {
   const date = new Date(`${row.date}T00:00:00`);
   return Number.isNaN(date.getTime()) ? '' : `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -89,6 +94,7 @@ const monthLabel = (key, lang = 'en') => {
   const [year, month] = key.split('-');
   return formatMonthLabel(new Date(Number(year), Number(month) - 1, 1).toLocaleString('en', { month: 'short', year: '2-digit' }), lang);
 };
+
 const startFor = (range) => {
   const now = new Date(),
     start = new Date(now);
@@ -110,21 +116,26 @@ export default function OrganisationAnalyticsPage({ data = {}, loading = false, 
       return {};
     }
   }, []);
+
   const [range, setRange] = useState(stored.range || 'all');
   const [department, setDepartment] = useState(stored.department || '');
   const [category, setCategory] = useState(stored.category || '');
+
   useEffect(() => {
     sessionStorage.setItem(FILTER_KEY, JSON.stringify({ range, department, category }));
   }, [range, department, category]);
+
   const employees = useMemo(() => source.employees || [], [source.employees]);
   const logs = useMemo(() => source.activityLogs || [], [source.activityLogs]);
   const goals = useMemo(() => source.goals || [], [source.goals]);
   const departments = useMemo(() => [...new Set(employees.map((row) => row.department).filter(Boolean))].sort(), [employees]);
   const categories = useMemo(() => [...new Set(logs.map((row) => row.category).filter(Boolean))].sort(), [logs]);
+
   useEffect(() => {
     if (department && !departments.includes(department)) setDepartment('');
     if (category && !categories.includes(category)) setCategory('');
   }, [department, category, departments, categories]);
+
   const filtered = useMemo(() => {
     const employeeDepartments = new Map(employees.map((row) => [row.name, row.department])),
       start = startFor(range),
@@ -138,6 +149,7 @@ export default function OrganisationAnalyticsPage({ data = {}, loading = false, 
       );
     });
   }, [logs, employees, range, department, category]);
+
   const result = useMemo(() => {
     const employeeDepartments = new Map(employees.map((row) => [row.name, row.department])),
       ordered = [...filtered].sort((a, b) => String(a.date).localeCompare(String(b.date)));
@@ -150,12 +162,12 @@ export default function OrganisationAnalyticsPage({ data = {}, loading = false, 
       const period = formatMonthLabel(d.toLocaleString('en', { month: 'short', year: '2-digit' }), i18n.language);
       monthWindow.push({ key, period });
     }
-
     const emissions = (key, name) =>
       [
         ...ordered.reduce((map, row) => {
-          const label = key(row);
-          if (label) map.set(label, (map.get(label) || 0) + Number(row.emission || 0));
+          const k = key(row);
+          if (!k) return map;
+          map.set(k, (map.get(k) || 0) + Number(row.emissions || 0));
           return map;
         }, new Map()),
       ].map(([label, value]) => ({ [name]: label, emissions: Number(value.toFixed(2)) }));
@@ -251,21 +263,21 @@ export default function OrganisationAnalyticsPage({ data = {}, loading = false, 
   }, [employees, filtered, goals, department, range]);
 
   if (loading) return <Loading />;
-  if (error)
+  if (error) {
     return (
-      <section className={`${card} border-rose-200 text-rose-700 dark:border-rose-900 dark:text-rose-300`}>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <AlertCircle className="h-5 w-5" />
-          <div className="flex-1">
-            <h1 className="font-semibold">Analytics could not be loaded</h1>
-            <p className="mt-1 text-sm">{error}</p>
-          </div>
-          <button type="button" onClick={onRetry} className="rounded-lg border border-rose-300 px-4 py-2 text-sm font-semibold">
-            Retry
-          </button>
+      <div className="rounded-xl border border-rose-200 bg-white p-4 text-rose-700 dark:border-rose-900 dark:bg-slate-900 dark:text-rose-300">
+        <div className="flex items-center gap-2">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <span className="text-xs font-semibold">{error}</span>
+          {onRetry && (
+            <button type="button" onClick={onRetry} className="ml-auto rounded border border-rose-200 px-2 py-1 text-xs font-semibold dark:border-rose-800">
+              Retry
+            </button>
+          )}
         </div>
-      </section>
+      </div>
     );
+  }
 
   const highest = [...result.categoryRows].sort((a, b) => b.emissions - a.emissions)[0],
     best = [...result.departmentRows].sort((a, b) => a.emissions - b.emissions)[0],
@@ -497,6 +509,7 @@ export default function OrganisationAnalyticsPage({ data = {}, loading = false, 
               />
             </LineChart>
           </ResponsiveContainer>
+
         </ChartCard>
       </div>
 

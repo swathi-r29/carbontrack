@@ -12,12 +12,7 @@ RUN mvn clean package -DskipTests
 # Step 2: Runtime stage
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-
-# Copy built JAR from build stage
-COPY --from=build /app/target/backend-0.0.1-SNAPSHOT.jar app.jar
-
-# Expose port 8080
 EXPOSE 8080
-
-# Run Spring Boot application
+COPY --from=build /app/target/backend-0.0.1-SNAPSHOT.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
+

@@ -41,6 +41,7 @@ const CARDS = [
 export default function KpiRow({ kpi, isLoading }) {
   const { t } = useTranslation();
 
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">

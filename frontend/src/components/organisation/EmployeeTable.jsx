@@ -1,20 +1,16 @@
+import { useTranslation } from 'react-i18next';
 import { Trophy, Leaf, Zap } from 'lucide-react';
 import Table from '@/components/ui/Table';
 
-/**
- * EmployeeTable
- * ─────────────────────────────────────────────────────────────
- * Table showing top 10 employee performers.
- * Uses generic Table component for consistency.
- * Displays: Rank, Name, Department, CO₂ Saved, Activities
- */
+export default function EmployeeTable({ employees = [], title }) {
+  const { t } = useTranslation();
+  const displayTitle = title || t('orgDashboard.topContributors');
 
-export default function EmployeeTable({ employees = [], title = 'Top Contributors' }) {
   // Define table columns
   const columns = [
     { 
       key: 'rank', 
-      header: 'Rank', 
+      header: t('orgDashboard.rank'), 
       align: 'left', 
       width: '80px',
       render: (value) => {
@@ -29,7 +25,7 @@ export default function EmployeeTable({ employees = [], title = 'Top Contributor
     },
     { 
       key: 'username', 
-      header: 'Employee', 
+      header: t('orgDashboard.employeeName'), 
       align: 'left',
       render: (value, row) => (
         <div className="flex flex-col">
@@ -40,7 +36,7 @@ export default function EmployeeTable({ employees = [], title = 'Top Contributor
     },
     { 
       key: 'department', 
-      header: 'Department', 
+      header: t('orgDashboard.department'), 
       align: 'left',
       hidden: 'md',
       render: (value) => (
@@ -51,7 +47,7 @@ export default function EmployeeTable({ employees = [], title = 'Top Contributor
     },
     { 
       key: 'totalEmissionsSaved', 
-      header: 'CO₂ Saved', 
+      header: t('orgDashboard.emissions'), 
       align: 'right',
       render: (value) => (
         <div className="flex items-center justify-end gap-2">
@@ -65,7 +61,7 @@ export default function EmployeeTable({ employees = [], title = 'Top Contributor
     },
     { 
       key: 'activityCount', 
-      header: 'Activities', 
+      header: t('nav.activities'), 
       align: 'right',
       hidden: 'sm',
       render: (value) => (
@@ -96,7 +92,7 @@ export default function EmployeeTable({ employees = [], title = 'Top Contributor
       <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
         <h2 className="text-lg font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2">
           <Trophy className="w-5 h-5 text-amber-600" />
-          {title}
+          {displayTitle}
         </h2>
       </div>
 
@@ -106,15 +102,15 @@ export default function EmployeeTable({ employees = [], title = 'Top Contributor
           columns={columns}
           data={rowData}
           isLoading={false}
-          emptyTitle="No employees found"
-          emptyDescription="Employee data will appear here"
+          emptyTitle={t('orgDashboard.noData')}
+          emptyDescription=""
           zebra={false}
           stickyHeader={false}
           className="rounded-none shadow-none border-none"
         />
       ) : (
         <div className="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
-          No employee data available
+          {t('orgDashboard.noData')}
         </div>
       )}
     </div>

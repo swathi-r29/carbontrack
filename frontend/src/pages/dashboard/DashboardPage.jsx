@@ -130,10 +130,10 @@ export default function DashboardPage() {
   const [percentile, setPercentile] = useState(null);
 
   const chartTabs = [
-    { id: 'weekly', label: t('dashboardPage.chartTabWeekly', { defaultValue: 'Weekly Trend' }) },
-    { id: 'monthly', label: t('dashboardPage.chartTabMonthly', { defaultValue: 'Monthly' }) },
-    { id: 'category', label: t('dashboardPage.chartTabCategory', { defaultValue: 'By Category' }) },
-    { id: 'benchmarks', label: t('dashboardPage.chartTabVsPlatform', { defaultValue: 'vs Platform' }) },
+    { id: 'weekly', label: t('dashboard.weeklyTrend') },
+    { id: 'monthly', label: t('dashboard.monthly') },
+    { id: 'category', label: t('dashboard.byCategory') },
+    { id: 'benchmarks', label: t('dashboard.vsPlatform') },
   ];
 
   // Load backend logs on mount or when an activity is logged
@@ -521,49 +521,32 @@ export default function DashboardPage() {
 
   // Calculate Benchmark Comparison Data (this month vs platform averages)
   const benchmarkData = useMemo(() => {
-    const categories = ['transport', 'electricity', 'food', 'shopping', 'energy'];
+    const categories = ['transport', 'energy', 'food', 'shopping', 'waste', 'other'];
     const labels = {
       transport: t('activitiesPage.catTransport', { defaultValue: 'Transport' }),
       electricity: t('activitiesPage.catElectricity', { defaultValue: 'Electricity' }),
+      energy: t('activitiesPage.catEnergy', { defaultValue: 'Home Energy' }),
       food: t('activitiesPage.catFood', { defaultValue: 'Food' }),
       shopping: t('activitiesPage.catShopping', { defaultValue: 'Shopping' }),
-      energy: t('activitiesPage.catEnergy', { defaultValue: 'Home Energy' }),
+      waste: t('activitiesPage.catWaste', { defaultValue: 'Waste' }),
+      other: t('activitiesPage.catOther', { defaultValue: 'Other' }),
     };
-
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const mLogs = logs.filter((l) => {
-      const ld = l.logDate ?? l.date;
-      if (!ld) return false;
-      const d = Array.isArray(ld) ? new Date(ld[0], ld[1] - 1, ld[2]) : new Date(ld);
-      return d >= startOfMonth;
-    });
 
     const userCatMap = {};
-    categories.forEach(cat => userCatMap[cat] = 0);
-    userCatMap['other'] = 0;
-
-    for (const l of mLogs) {
-      const cat = (l.category ?? 'other').toLowerCase();
-      if (cat in userCatMap) {
-        userCatMap[cat] += (l.calculatedEmissions ?? 0);
-      } else {
-        userCatMap['other'] += (l.calculatedEmissions ?? 0);
+    (logs || []).forEach((log) => {
+      if (new Date(log.logDate) >= startOfMonth) {
+        const cat = (log.category || 'other').toLowerCase();
+        userCatMap[cat] = (userCatMap[cat] || 0) + (log.emissions || 0);
       }
-    }
+    });
 
     const platformCatMap = {};
-    categories.forEach(cat => platformCatMap[cat] = 0);
-    platformCatMap['other'] = 0;
-
-    for (const p of platformAverages) {
-      const cat = (p.category ?? 'other').toLowerCase();
-      if (cat in platformCatMap) {
-        platformCatMap[cat] = p.totalEmissions ?? 0;
-      } else {
-        platformCatMap['other'] += p.totalEmissions ?? 0;
-      }
-    }
+    (platformAverages || []).forEach((item) => {
+      const cat = (item.category || 'other').toLowerCase();
+      platformCatMap[cat] = item.averageEmissions || 0;
+    });
 
     return categories.map((cat) => ({
       category: labels[cat] || cat,
@@ -696,7 +679,13 @@ export default function DashboardPage() {
                         {t('dashboardPage.shareOfTotalCo2', { defaultValue: 'share of total CO₂' })}
                       </span>
                     </div>
-                    <CategoryPieChart data={categoryData} height={272} />
+                    {categoryData.length === 0 ? (
+                      <div className="flex h-[272px] flex-col items-center justify-center text-center p-6 bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl">
+                        <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">{t('dashboard.noActivities')}</p>
+                      </div>
+                    ) : (
+                      <CategoryPieChart data={categoryData} height={272} innerRadius={64} />
+                    )}
                   </div>
                 )}
                 {chartTab === 'benchmarks' && (

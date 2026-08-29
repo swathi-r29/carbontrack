@@ -8,9 +8,9 @@ import {
 import { useAuth } from '@/context/AuthContext';
 
 export default function OrganisationSidebar({ open, collapsed, onClose, onCollapse }) {
+  const { t } = useTranslation();
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const { t } = useTranslation();
 
   const groups = [
     { label: t('orgNav.overview', 'Overview'), items: [['/organisation/dashboard', t('orgNav.dashboard', 'Dashboard'), Gauge]] },
@@ -47,6 +47,7 @@ export default function OrganisationSidebar({ open, collapsed, onClose, onCollap
       ],
     },
   ];
+
 
   return (
     <>

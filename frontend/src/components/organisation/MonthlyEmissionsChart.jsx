@@ -1,19 +1,15 @@
+import { useTranslation } from 'react-i18next';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-/**
- * MonthlyEmissionsChart
- * ─────────────────────────────────────────────────────────────
- * Line chart showing monthly emissions trend over 12 months.
- */
-
 export default function MonthlyEmissionsChart({ monthlyEmissions = [] }) {
+  const { t } = useTranslation();
   if (!monthlyEmissions || monthlyEmissions.length === 0) {
     return (
       <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-card dark:shadow-lg">
         <h2 className="text-lg font-bold text-slate-900 dark:text-slate-50 mb-4">
-          Monthly Emissions Trend
+          📈 {t('orgDashboard.monthlyTrends')}
         </h2>
-        <p className="text-slate-500 dark:text-slate-400 text-center py-8">No data available</p>
+        <p className="text-slate-500 dark:text-slate-400 text-center py-8">{t('orgDashboard.noData')}</p>
       </div>
     );
   }
@@ -21,7 +17,7 @@ export default function MonthlyEmissionsChart({ monthlyEmissions = [] }) {
   return (
     <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-card dark:shadow-lg">
       <h2 className="text-lg font-bold text-slate-900 dark:text-slate-50 mb-4">
-        📈 Monthly Emissions Trend
+        📈 {t('orgDashboard.monthlyTrends')}
       </h2>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={monthlyEmissions} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>

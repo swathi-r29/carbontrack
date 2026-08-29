@@ -1,0 +1,831 @@
+{
+	"info": {
+		"_postman_id": "c1f7b03b-e018-47bc-adfe-8d82d46e27ab",
+		"name": "CarbonTrack API Collection",
+		"description": "Comprehensive Postman collection to test the entire flow of the CarbonTrack API, from user registration/login to activity logging, goal tracking, challenges, leaderboards, and administrative controls.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Authentication",
+			"description": "User registration, login, token retrieval, and password reset endpoints.",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testuser_postman\",\n  \"email\": \"postman_tester@demo.carbontrack.local\",\n  \"password\": \"Password@123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.accessToken) {",
+									"    pm.collectionVariables.set(\"authToken\", jsonData.accessToken);",
+									"    pm.test(\"Token successfully set in authToken variable\", function () {",
+									"        pm.expect(pm.collectionVariables.get(\"authToken\")).to.not.be.undefined;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"emailOrUsername\": \"postman_tester@demo.carbontrack.local\",\n  \"password\": \"Password@123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.accessToken) {",
+									"    pm.collectionVariables.set(\"adminToken\", jsonData.accessToken);",
+									"    pm.test(\"Admin Token successfully set in adminToken variable\", function () {",
+									"        pm.expect(pm.collectionVariables.get(\"adminToken\")).to.not.be.undefined;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"emailOrUsername\": \"admin@demo.carbontrack.local\",\n  \"password\": \"AdminPassword123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. User Profile",
+			"description": "Manage active user profile settings, avatars, and password updates.",
+			"item": [
+				{
+					"name": "Get Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile Settings",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testuser_postman\",\n  \"email\": \"postman_tester@demo.carbontrack.local\",\n  \"isAnonymous\": false,\n  \"anonymousName\": \"SilentLeaf\",\n  \"sustainabilityPreferences\": {\n    \"dietPreference\": \"vegetarian\",\n    \"primaryCommuteMode\": \"public_transport\",\n    \"greenEnergyUsage\": true,\n    \"reducedShoppingConsumption\": true\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Activity Logs",
+			"description": "Endpoints to submit log entries for transport, food, electricity, and shopping.",
+			"item": [
+				{
+					"name": "Get Activity Logs",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/activity-logs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"activity-logs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Log Transport Activity",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"transportMode\": \"car\",\n  \"distance\": 15.5,\n  \"unit\": \"km\",\n  \"logDate\": \"2026-08-12\",\n  \"notes\": \"Drove alone to office\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/activity-logs/transport",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"activity-logs",
+								"transport"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Log Electricity Activity",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"energySource\": \"grid\",\n  \"kwhConsumed\": 12.0,\n  \"unit\": \"kWh\",\n  \"logDate\": \"2026-08-12\",\n  \"notes\": \"Daily home power consumption\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/activity-logs/electricity",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"activity-logs",
+								"electricity"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Log Food Activity",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"mealType\": \"vegan\",\n  \"amount\": 2.0,\n  \"unit\": \"servings\",\n  \"logDate\": \"2026-08-12\",\n  \"notes\": \"Healthy vegan meals\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/activity-logs/food",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"activity-logs",
+								"food"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Log Shopping Activity",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"productCategory\": \"clothing\",\n  \"spendAmount\": 1.0,\n  \"currency\": \"items\",\n  \"logDate\": \"2026-08-12\",\n  \"notes\": \"Bought 1 cotton t-shirt\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/activity-logs/shopping",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"activity-logs",
+								"shopping"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Eco Score",
+			"description": "Calculate active user's sustainability scores, percentages, and breakdowns.",
+			"item": [
+				{
+					"name": "Get Eco Score Statistics",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/eco-score",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"eco-score"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. Goal Tracker",
+			"description": "Create, retrieve, update, and delete sustainability goals.",
+			"item": [
+				{
+					"name": "Get Goals List",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/goals",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"goals"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Goal",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData && jsonData.id) {",
+									"    pm.collectionVariables.set(\"goalId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Commute via Cycle\",\n  \"description\": \"Save carbon by cycling to nearby locations\",\n  \"category\": \"transport\",\n  \"period\": \"weekly\",\n  \"targetKg\": 10.0,\n  \"startDate\": \"2026-08-12\",\n  \"endDate\": \"2026-08-19\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/goals",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"goals"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Goal",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Commute via Cycle - High Priority\",\n  \"description\": \"Save carbon by cycling to office and stores\",\n  \"category\": \"transport\",\n  \"period\": \"weekly\",\n  \"targetKg\": 15.0,\n  \"startDate\": \"2026-08-12\",\n  \"endDate\": \"2026-08-19\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/goals/{{goalId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"goals",
+								"{{goalId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Goal",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/goals/{{goalId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"goals",
+								"{{goalId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "6. Eco Challenges",
+			"description": "Browse global sustainability challenges and join them.",
+			"item": [
+				{
+					"name": "Get All Challenges",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData && jsonData.length > 0) {",
+									"    pm.collectionVariables.set(\"challengeId\", jsonData[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/challenges",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"challenges"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Join Challenge",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/challenges/{{challengeId}}/join",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"challenges",
+								"{{challengeId}}",
+								"join"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Joined Challenges",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/challenges/my",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"challenges",
+								"my"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "7. Leaderboard",
+			"description": "View global community leaderboard stats and recent achievements.",
+			"item": [
+				{
+					"name": "Get Leaderboard Rankings",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/leaderboard",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"leaderboard"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "8. Admin Control Portal",
+			"description": "Endpoints accessible only to system administrators.",
+			"item": [
+				{
+					"name": "Get Admin Stats",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"stats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Users List",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"users"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "adminToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "challengeId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "goalId",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}

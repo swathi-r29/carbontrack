@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: carbontrack-prod-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: carbontrack
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:SwathiPass123!}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis:alpine
+    container_name: carbontrack-prod-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: carbontrack-prod-backend
+    restart: always
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DATABASE_URL: jdbc:mysql://db:3306/carbontrack?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:SwathiPass123!}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET:carbontrackProductionSecretKeyForJwtSigningMustBeAtLeast256BitsLongForHMACSHA256}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:}
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: carbontrack-prod-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  mysql_data:

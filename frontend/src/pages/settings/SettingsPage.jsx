@@ -132,14 +132,14 @@ function ProfileTab({ user }) {
       </div>
       <div className="flex flex-col gap-4 w-full max-w-md">
         <Input 
-          label={t('settingsPage.username', { defaultValue: 'Username' })} 
+          label={t('settingsPage.username', { defaultValue: 'Username' })} 	
           value={username} 
           onChange={(e) => setUsername(e.target.value)} 
           leftIcon={<User className="h-4 w-4" />} 
           required
         />
         <Input 
-          label={t('settingsPage.email', { defaultValue: 'Email' })} 
+          label={t('settingsPage.email', { defaultValue: 'Email' })} 	
           type="email" 
           value={email} 
           onChange={(e) => setEmail(e.target.value)} 

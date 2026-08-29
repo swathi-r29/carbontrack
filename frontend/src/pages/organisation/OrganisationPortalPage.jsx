@@ -87,8 +87,8 @@ function EcoBackground(){
 
 /* ── 1. Organisation Overview Banner ────────────────────────────── */
 function DashboardHero({data}){
-  const reduceMotion=useReducedMotion();
   const { t } = useTranslation();
+  const reduceMotion=useReducedMotion();
   const kpis=data.kpis||{};
   const latestPeriod=(data.monthlyEmissions||[]).at(-1)?.month;
   const hasScore=kpis.averageCarbonScore!==null&&kpis.averageCarbonScore!==undefined;
@@ -181,8 +181,8 @@ function KpiCard({item,index,reduceMotion}){
   </motion.article>;
 }
 function OrganisationKpiCards({data,loading,error,onRetry}){
-  const reduceMotion=useReducedMotion();
   const { t } = useTranslation();
+  const reduceMotion=useReducedMotion();
   if(loading)return <section aria-label="Organisation metrics" className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">{Array.from({length:6},(_,index)=><KpiCardSkeleton key={index}/>)}</section>;
   if(error)return <section aria-label="Organisation metrics error" className="rounded-xl border border-rose-200 bg-white px-4 py-3 text-rose-700 shadow-xs dark:border-rose-900 dark:bg-slate-900 dark:text-rose-300"><div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center"><AlertCircle className="h-4 w-4 shrink-0"/><div className="flex-1"><p className="font-semibold text-xs">Metrics could not be loaded</p></div><button type="button" onClick={onRetry} className="rounded border border-rose-200 px-2 py-1 text-xs font-semibold dark:border-rose-800">Retry</button></div></section>;
   const kpis=data.kpis||{};const monthly=(data.monthlyEmissions||[]).map(row=>Number(row.emissions)).filter(Number.isFinite);const currentMonth=monthly.at(-1);const previousMonth=monthly.at(-2);

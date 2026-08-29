@@ -1,20 +1,14 @@
-/**
- * AuthLayout.jsx
- * ─────────────────────────────────────────────────────────────
- * Full-page shell for all unauthenticated pages (login, register,
- * forgot-password) with extremely premium modern design.
- * Centered card with glowing ambient background, no splits!
- */
-
 import { useState, useRef, useEffect } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { Leaf } from 'lucide-react';
+import { Leaf, Globe } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import heroVideo from '@/assets/hero.mp4';
 
 export default function AuthLayout() {
   const [videoLoaded, setVideoLoaded] = useState(false);
   const videoRef = useRef(null);
+  const { i18n } = useTranslation();
 
   useEffect(() => {
     if (videoRef.current && videoRef.current.readyState >= 2) {
@@ -33,7 +27,6 @@ export default function AuthLayout() {
 
       {/* FULL PAGE BACKGROUND */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-        {/* Full-bleed video background with instant smooth display */}
         <video
           ref={videoRef}
           src={heroVideo}
@@ -55,7 +48,7 @@ export default function AuthLayout() {
       </div>
 
       {/* ── Top Header Brand ───────────────────────────────── */}
-      <header className="relative z-10 w-full max-w-7xl mx-auto px-6 pt-8 flex justify-center lg:justify-start">
+      <header className="relative z-10 w-full max-w-7xl mx-auto px-6 pt-8 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-3 group">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-900/50 backdrop-blur-md border border-emerald-700/50 shadow-lg shadow-emerald-900/20 group-hover:scale-105 transition-transform duration-300">
             <Leaf className="h-5.5 w-5.5 text-emerald-400" aria-hidden="true" />
@@ -65,6 +58,25 @@ export default function AuthLayout() {
             <p className="text-[9px] uppercase tracking-widest font-bold text-emerald-300/70 mt-0.5">Sustainability Platform</p>
           </div>
         </Link>
+        <div className="flex items-center gap-2">
+          <Globe className="h-4 w-4 text-emerald-400" />
+          <select
+            value={i18n.resolvedLanguage || i18n.language || 'en'}
+            onChange={(e) => i18n.changeLanguage(e.target.value)}
+            className="h-9 rounded-xl border border-white/10 bg-black/40 px-3 text-xs font-semibold text-emerald-200 outline-none backdrop-blur-md transition hover:border-white/20 focus:border-emerald-500"
+            aria-label="Select language"
+          >
+            <option value="en" className="bg-slate-900 text-white">English</option>
+            <option value="ta" className="bg-slate-900 text-white">தமிழ்</option>
+            <option value="hi" className="bg-slate-900 text-white">हिंदी</option>
+            <option value="es" className="bg-slate-900 text-white">Español</option>
+            <option value="fr" className="bg-slate-900 text-white">Français</option>
+            <option value="de" className="bg-slate-900 text-white">Deutsch</option>
+            <option value="ar" className="bg-slate-900 text-white">العربية</option>
+            <option value="zh" className="bg-slate-900 text-white">中文</option>
+            <option value="ja" className="bg-slate-900 text-white">日本語</option>
+          </select>
+        </div>
       </header>
 
       {/* ── Center Content ─────────────────────────────────── */}

@@ -1,0 +1,31 @@
+services:
+  # Spring Boot Backend Service
+  - type: web
+    name: carbontrack-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: PORT
+        value: 8080
+      - key: JWT_SECRET
+        value: carbontrackProductionSecretKeyForJwtSigningMustBeAtLeast256BitsLongForHMACSHA256
+      - key: DATABASE_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+
+  # React Vite Frontend Service
+  - type: web
+    name: carbontrack-frontend
+    env: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: ./frontend/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

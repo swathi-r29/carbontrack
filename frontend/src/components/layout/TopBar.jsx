@@ -105,7 +105,7 @@ export default function TopBar({ onMenuClick, title, hasScrolled }) {
         <select
           value={currentLanguage}
           onChange={(event) => handleLanguageChange(event.target.value)}
-          className="hidden h-9 rounded-lg border border-slate-200 bg-white/80 px-2.5 text-xs font-semibold text-slate-700 sm:inline-flex sm:items-center dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200"
+          className="h-9 rounded-lg border border-slate-200 bg-white/80 px-2 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200 cursor-pointer"
           aria-label={t('common.selectLanguage')}
         >
           <option value="en">English</option>

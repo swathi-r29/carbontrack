@@ -152,7 +152,7 @@ function OrganisationForm() {
       </div>
     </section>
     <section>
-      <h2 className="text-xl font-bold">2. Organisation Administrator Details</h2>
+      <h2 className="text-xl font-bold">2. {t('orgDashboard.adminProfile')}</h2>
       <p className="mt-1 mb-4 text-sm text-[#9FAFA5]">This person will manage the organisation dashboard and members.</p>
       <div className="grid sm:grid-cols-2 gap-4">
         {field('adminFullName', t('registerPage.fullName', { defaultValue: 'Admin full name' }), true, 'text', 'e.g. Priya Sharma')}
@@ -180,7 +180,7 @@ export default function RegisterPage() {
     { id:'ORGANISATION', title: t('registerPage.orgTab', { defaultValue: 'Organisation' }), icon:Building2, text:'Register your company, institution or team to monitor organisation emissions, compare employee performance and generate CSR reports.', action:'Continue as Organisation' },
   ];
   return <div className="slide-up rounded-3xl border border-[#1E4432] bg-[#0F2E22]/70 p-5 sm:p-9 text-[#F3EFE4] backdrop-blur-3xl">
-    <header className="text-center mb-7"><h1 className="text-3xl font-black">Create your CarbonTrack account</h1><p className="mt-2 text-[#9FAFA5]">Choose how you want to use CarbonTrack.</p></header>
+    <header className="text-center mb-7"><h1 className="text-3xl font-black">{t('auth.register')}</h1><p className="mt-2 text-[#9FAFA5]">Choose how you want to use CarbonTrack.</p></header>
     <div className="grid md:grid-cols-2 gap-4 mb-8" role="radiogroup" aria-label="Account type">
       {options.map(({id,title,icon:Icon,text,action}) => <button key={id} type="button" role="radio" aria-checked={accountType===id} onClick={()=>setAccountType(id)}
         className={`text-left rounded-2xl border p-5 transition ${accountType===id ? 'border-[#7FBF8C] bg-[#7FBF8C]/10 ring-2 ring-[#7FBF8C]/20' : 'border-[#315744] bg-[#06140F]/35 hover:border-[#7FBF8C]/60'}`}>
@@ -189,6 +189,6 @@ export default function RegisterPage() {
       </button>)}
     </div>
     {accountType === 'INDIVIDUAL' ? <IndividualForm key="individual" /> : <OrganisationForm key="organisation" />}
-    <p className="text-center mt-7 text-sm"><Link to="/" className="font-bold text-[#7FBF8C]">Back to Login</Link></p>
+    <p className="text-center mt-7 text-sm"><Link to="/" className="font-bold text-[#7FBF8C]">{t('auth.signIn')}</Link></p>
   </div>;
 }

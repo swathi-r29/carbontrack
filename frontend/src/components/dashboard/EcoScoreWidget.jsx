@@ -62,7 +62,7 @@ export default function EcoScoreWidget() {
   const color = data?.color || '#10b981';
   const percentile = data?.percentile || 80;
   const breakdown = data?.breakdown || { emissionScore: 280, streakScore: 190, goalScore: 200 };
-  const tips = data?.tips || ["Keep maintaining your active logging habit to boost score!"];
+  const tips = data?.tips || [t('dashboard.focusPoint1')];
 
   // Normalize score for 180-degree gauge fill (300 to 850 = range 550)
   // Arc radius = 50 => Arc length = Math.PI * 50 = 157.08

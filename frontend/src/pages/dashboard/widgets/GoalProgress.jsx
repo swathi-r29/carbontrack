@@ -85,7 +85,6 @@ function GoalItem({ goal }) {
 
 export default function GoalProgress({ goals, isLoading }) {
   const { t } = useTranslation();
-
   if (isLoading) {
     return (
       <Card>

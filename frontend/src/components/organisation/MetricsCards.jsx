@@ -1,14 +1,16 @@
+import { useTranslation } from 'react-i18next';
 import { Users, Leaf, TrendingUp, Target } from 'lucide-react';
 
 export default function MetricsCards({ data }) {
+  const { t } = useTranslation();
   if (!data) return null;
   const cards = [
-    ['Total Employees', data.totalEmployees, '', Users, 'blue'],
-    ['Team Carbon Footprint', data.totalEmissionsCO2?.toFixed(1), 'kg', Leaf, 'green'],
-    ['Average per Employee', data.metrics?.avgEmissionsPerEmployee?.toFixed(1) ?? 0, 'kg', TrendingUp, 'teal'],
-    ['Goal Completion', data.metrics?.goalCompletionPercent?.toFixed(1) ?? 0, '%', Target, 'amber'],
-    ['Participation', data.metrics?.participationPercent?.toFixed(1) ?? 0, '%', Users, 'indigo'],
-    ['Sustainability Score', data.metrics?.sustainabilityScore?.toFixed(1) ?? 0, '/100', Leaf, 'emerald'],
+    [t('orgDashboard.activeEmployees'), data.totalEmployees, '', Users, 'blue'],
+    [t('orgDashboard.totalEmissions'), data.totalEmissionsCO2?.toFixed(1), 'kg', Leaf, 'green'],
+    [t('orgDashboard.avgPerEmployee'), data.metrics?.avgEmissionsPerEmployee?.toFixed(1) ?? 0, 'kg', TrendingUp, 'teal'],
+    [t('orgDashboard.goals'), data.metrics?.goalCompletionPercent?.toFixed(1) ?? 0, '%', Target, 'amber'],
+    [t('orgDashboard.participationRate'), data.metrics?.participationPercent?.toFixed(1) ?? 0, '%', Users, 'indigo'],
+    [t('orgDashboard.sustainabilityScore'), data.metrics?.sustainabilityScore?.toFixed(1) ?? 0, '/100', Leaf, 'emerald'],
   ];
 
   return (
