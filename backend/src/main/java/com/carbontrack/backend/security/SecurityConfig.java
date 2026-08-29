@@ -54,12 +54,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of(
-            "http://localhost:*",
-            "http://127.0.0.1:*",
-            "https://*.vercel.app",
-            "https://carbontrack.vercel.app"
-        ));
+        configuration.setAllowedOriginPatterns(List.of("*"));
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Origin", "Accept", "*"));
@@ -83,6 +78,7 @@ public class SecurityConfig {
                         })
                 )
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         // Permit all auth endpoints, public AI chat/suggestions, and static assets
                         .requestMatchers("/api/auth/**", "/api/v1/auth/**", "/api/ai/**", "/error", "/error/**",
                                        "/login/**", "/oauth2/**", "/h2-console/**", "/uploads/**",
@@ -91,6 +87,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/org-portal/**").hasRole("ORG_ADMIN")
                         .requestMatchers("/api/organisations/**").hasAnyRole("ORG_ADMIN", "ADMIN")
                         .anyRequest().authenticated())
+
                 .authenticationProvider(authenticationProvider())
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")

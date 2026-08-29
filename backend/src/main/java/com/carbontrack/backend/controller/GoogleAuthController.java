@@ -25,8 +25,8 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/auth/google")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class GoogleAuthController {
+
     
     private static final Logger logger = LoggerFactory.getLogger(GoogleAuthController.class);
 
