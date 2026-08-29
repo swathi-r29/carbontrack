@@ -68,10 +68,16 @@ public class GoogleOAuth2Service {
 
             logger.info("Google token decoded successfully for user: {}", claims.get("email"));
             return claims;
+        } catch (org.springframework.web.client.HttpStatusCodeException e) {
+            String errorMsg = "Google API rejected token (HTTP " + e.getStatusCode() + ")";
+            logger.error(errorMsg);
+            throw new Exception(errorMsg, e);
         } catch (Exception e) {
-            logger.error("Failed to verify Google token: {}", e.getMessage());
-            throw new Exception("Failed to verify Google token: " + e.getMessage(), e);
+            String errorMsg = (e.getMessage() != null && !e.getMessage().isBlank()) ? e.getMessage() : e.getClass().getSimpleName();
+            logger.error("Failed to verify Google token: {}", errorMsg, e);
+            throw new Exception(errorMsg, e);
         }
+
     }
 
     /**

@@ -108,11 +108,13 @@ public class GoogleAuthController {
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            logger.error("Google token verification failed: {}", e.getMessage(), e);
+            String errorMsg = (e.getMessage() != null && !e.getMessage().isBlank()) ? e.getMessage() : e.getClass().getSimpleName();
+            logger.error("Google token verification failed: {}", errorMsg, e);
             return ResponseEntity.badRequest().body(
-                new AuthResponse(null, null, null, null, "Authentication failed: " + e.getMessage(), "ERROR")
+                new AuthResponse(null, null, null, null, "Authentication failed: " + errorMsg, "ERROR")
             );
         }
+
     }
 
 
