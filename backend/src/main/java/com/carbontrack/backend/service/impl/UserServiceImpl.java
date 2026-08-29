@@ -21,6 +21,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.carbontrack.backend.entity.Organisation;
+import com.carbontrack.backend.repository.OrganisationRepository;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -30,19 +33,22 @@ public class UserServiceImpl implements UserService {
     private final UserBadgeRepository userBadgeRepository;
     private final BadgeRepository badgeRepository;
     private final PasswordEncoder passwordEncoder;
+    private final OrganisationRepository organisationRepository;
 
     public UserServiceImpl(UserRepository userRepository, 
                            SecurityService securityService, 
                            ObjectMapper objectMapper,
                            UserBadgeRepository userBadgeRepository,
                            BadgeRepository badgeRepository,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder,
+                           OrganisationRepository organisationRepository) {
         this.userRepository = userRepository;
         this.securityService = securityService;
         this.objectMapper = objectMapper;
         this.userBadgeRepository = userBadgeRepository;
         this.badgeRepository = badgeRepository;
         this.passwordEncoder = passwordEncoder;
+        this.organisationRepository = organisationRepository;
     }
 
     @Override
@@ -73,6 +79,15 @@ public class UserServiceImpl implements UserService {
             currentUser.setAnonymousName(request.getAnonymousName().trim());
         }
 
+        if (request.getOrganisationId() != null) {
+            if (request.getOrganisationId() == -1L) {
+                currentUser.setOrganisation(null);
+            } else {
+                Organisation org = organisationRepository.findById(request.getOrganisationId()).orElse(null);
+                currentUser.setOrganisation(org);
+            }
+        }
+
         if (request.getSustainabilityPreferences() != null) {
             try {
                 String jsonStr = objectMapper.writeValueAsString(request.getSustainabilityPreferences());
@@ -85,6 +100,7 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(currentUser);
         return mapToResponse(savedUser);
     }
+
 
     @Override
     public void changePassword(String currentPassword, String newPassword) {

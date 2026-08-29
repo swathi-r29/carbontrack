@@ -6,6 +6,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useDensity } from '@/context/DensityContext';
 import { Card, Button, Input, Badge, Alert, Tabs } from '@/components/ui';
 import { getMyProfile, updateMyProfile, uploadAvatar, changeUserPassword } from '@/api';
+import { getPublicOrganisations } from '@/api/organisationApi';
 import toast from 'react-hot-toast';
 
 function ProfileTab({ user }) {
@@ -16,6 +17,8 @@ function ProfileTab({ user }) {
   const [username, setUsername] = useState(user?.username ?? '');
   const [email, setEmail] = useState('');
   const [organisationName, setOrganisationName] = useState(user?.organisationName ?? '');
+  const [selectedOrgId, setSelectedOrgId] = useState(user?.organisationId ?? '');
+  const [organisationsList, setOrganisationsList] = useState([]);
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [anonymousName, setAnonymousName] = useState('');
   const [errorMsg, setErrorMsg] = useState(null);
@@ -24,12 +27,23 @@ function ProfileTab({ user }) {
 
   useEffect(() => {
     let active = true;
+    getPublicOrganisations()
+      .then((orgs) => {
+        if (active && Array.isArray(orgs)) {
+          setOrganisationsList(orgs);
+        }
+      })
+      .catch((err) => console.error('Failed to fetch organisations:', err));
+
     getMyProfile()
       .then((profile) => {
         if (!active) return;
         setUsername(profile.username || '');
         setEmail(profile.email || '');
-        setOrganisationName(profile.organisationName || user?.organisationName || 'Greenfield Technologies');
+        setOrganisationName(profile.organisationName || user?.organisationName || '');
+        if (profile.organisationId) {
+          setSelectedOrgId(profile.organisationId);
+        }
         setIsAnonymous(!!profile.isAnonymous);
         setAnonymousName(profile.anonymousName || '');
       })
@@ -47,8 +61,20 @@ function ProfileTab({ user }) {
     setSaved(false);
     setErrorMsg(null);
     try {
-      const updated = await updateMyProfile({ username, email, isAnonymous, anonymousName });
-      updateUser({ username: updated.username });
+      const payload = {
+        username,
+        email,
+        isAnonymous,
+        anonymousName,
+        organisationId: selectedOrgId ? Number(selectedOrgId) : -1
+      };
+      const updated = await updateMyProfile(payload);
+      updateUser({ username: updated.username, organisationName: updated.organisationName });
+      if (updated.organisationName) {
+        setOrganisationName(updated.organisationName);
+      } else if (selectedOrgId === '' || selectedOrgId === '-1') {
+        setOrganisationName('');
+      }
       setSaved(true);
       toast.success(t('settingsPage.profileUpdated', { defaultValue: 'Profile updated successfully.' }));
     } catch (err) {
@@ -60,6 +86,7 @@ function ProfileTab({ user }) {
       setLoading(false);
     }
   };
+
 
   const handleAvatarChange = async (e) => {
     const file = e.target.files?.[0];
@@ -146,13 +173,28 @@ function ProfileTab({ user }) {
           placeholder="your@email.com" 
           required
         />
-        <Input 
-          label={t('settingsPage.organization', { defaultValue: 'Organization' })} 
-          value={organisationName || 'Greenfield Technologies'} 
-          disabled 
-          leftIcon={<Building2 className="h-4 w-4" />} 
-          hint={t('settingsPage.managedByAdmin', { defaultValue: 'Managed by your organization administrator' })}
-        />
+        <div className="flex flex-col gap-1.5 w-full">
+          <label className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+            <Building2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            {t('settingsPage.organization', { defaultValue: 'Organization' })}
+          </label>
+          <select 
+            value={selectedOrgId ?? ''} 
+            onChange={(e) => setSelectedOrgId(e.target.value)}
+            className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2.5 text-sm font-medium text-slate-900 dark:text-slate-100 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+          >
+            <option value="-1">-- None (Independent User) --</option>
+            {organisationsList.map((org) => (
+              <option key={org.id} value={org.id}>
+                {org.name}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-slate-500">
+            Select your organization to join its private portal and leaderboard.
+          </p>
+        </div>
+
 
         {/* Milestone 3: Leaderboard Anonymity & Custom Alias */}
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/50 p-4.5 space-y-4">

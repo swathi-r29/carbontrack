@@ -33,8 +33,14 @@ public class UserProfileRequest {
     public String getAnonymousName() { return anonymousName; }
     public void setAnonymousName(String anonymousName) { this.anonymousName = anonymousName; }
 
+    private Long organisationId;
+
+    public Long getOrganisationId() { return organisationId; }
+    public void setOrganisationId(Long organisationId) { this.organisationId = organisationId; }
+
     public SustainabilityPreferences getSustainabilityPreferences() { return sustainabilityPreferences; }
     public void setSustainabilityPreferences(SustainabilityPreferences sustainabilityPreferences) { 
         this.sustainabilityPreferences = sustainabilityPreferences; 
     }
 }
+
