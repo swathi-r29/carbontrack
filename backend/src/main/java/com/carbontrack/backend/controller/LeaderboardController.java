@@ -104,7 +104,7 @@ public class LeaderboardController {
 
         List<ActivityLog> allLogs = activityLogRepository.findAll();
         double totalCO2Saved = allLogs.stream()
-                .mapToDouble(ActivityLog::getCalculatedEmissions)
+                .mapToDouble(l -> l.getCalculatedEmissions() != null ? l.getCalculatedEmissions() : 0.0)
                 .sum();
 
         LocalDate today = LocalDate.now();
@@ -230,10 +230,7 @@ public class LeaderboardController {
             String dayName = date.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
 
             List<ActivityLog> dayLogs = allLogs.stream()
-                    .filter(log -> {
-                        LocalDate d = log.getLogDate() != null ? log.getLogDate() : (log.getCreatedAt() != null ? log.getCreatedAt().toLocalDate() : null);
-                        return d != null && d.equals(date);
-                    })
+                    .filter(log -> log.getLogDate() != null && log.getLogDate().equals(date))
                     .collect(Collectors.toList());
 
             double dayCO2 = dayLogs.stream()
@@ -277,7 +274,7 @@ public class LeaderboardController {
             List<ActivityLog> userLogs = logsByUser.getOrDefault(user.getId(), Collections.emptyList());
             int activityCount = userLogs.size();
             double totalEmissions = userLogs.stream()
-                    .mapToDouble(ActivityLog::getCalculatedEmissions)
+                    .mapToDouble(l -> l.getCalculatedEmissions() != null ? l.getCalculatedEmissions() : 0.0)
                     .sum();
 
             double totalCO2Emitted = totalEmissions;
